@@ -1,0 +1,108 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 移动端适配优化 */
+@media (max-width: 600px) {
+  .ant-layout {
+    min-height: 100vh !important;
+  }
+  .ant-layout-header {
+    padding: 0 8px !important;
+  }
+  .ant-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .ant-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 24px 0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px #e6eaf1 !important;
+    padding: 12px !important;
+  }
+  .ant-typography, .ant-typography-title, .ant-typography-paragraph {
+    font-size: 16px !important;
+  }
+  .ant-input, .ant-input-textarea {
+    font-size: 15px !important;
+  }
+  .ant-btn {
+    font-size: 15px !important;
+    height: 38px !important;
+    padding: 0 12px !important;
+  }
+  .ant-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    left: 2.5vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .ant-layout-footer {
+    padding: 12px 8px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+  }
+  .ant-space-vertical {
+    width: 100% !important;
+    align-items: center !important;
+  }
+  .ant-btn, .ant-btn-block {
+    width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+  .ant-dropdown {
+    width: 100% !important;
+  }
+  .ant-modal-content {
+    padding: 12px !important;
+  }
+  .ant-layout-content {
+    padding: 0 !important;
+    min-height: 400px !important;
+  }
+  .ant-typography-secondary {
+    font-size: 13px !important;
+  }
+  .ant-card .ant-btn {
+    margin-bottom: 0 !important;
+  }
+}
