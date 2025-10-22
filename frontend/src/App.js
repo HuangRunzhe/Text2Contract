@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Layout, Typography, Input, Button, message, Card, Spin, Modal, Row, Col, Space, Dropdown, Menu } from 'antd';
-import { DownloadOutlined, UserOutlined, InfoCircleOutlined, QuestionCircleOutlined, GlobalOutlined, GithubOutlined } from '@ant-design/icons';
+import { Layout, Typography, Input, Button, message, Card, Spin, Modal, Row, Col, Space, Dropdown, Menu, Divider } from 'antd';
+import { DownloadOutlined, UserOutlined, InfoCircleOutlined, QuestionCircleOutlined, GlobalOutlined, GithubOutlined, EyeOutlined, FilePdfOutlined, HeartOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import './i18n';
 import 'antd/dist/reset.css';
@@ -20,12 +20,68 @@ const LOGO = (
 const EXAMPLE_TEXT_ZH = `甲方（用人单位）：XXX公司\n乙方（员工）：张三\n岗位：软件工程师\n试用期：3个月\n工资：12000元/月\n主要条款：\n1. 乙方应遵守公司规章制度。\n2. 合同期满自动终止，提前解除需提前30天通知。\n3. 其他未尽事宜，双方协商解决。`;
 const EXAMPLE_TEXT_EN = `Party A (Employer): XXX Company\nParty B (Employee): John Doe\nPosition: Software Engineer\nProbation: 3 months\nSalary: $2000/month\nMain Terms:\n1. Party B shall comply with company rules.\n2. The contract ends automatically upon expiration; early termination requires 30 days notice.\n3. Other matters to be resolved by mutual agreement.`;
 
+// 示例合同清单（已根据 public/pdfs 目录实际文件同步）
+const SAMPLE_PDFS = [
+  { label: '制造供货协议', lang: 'zh', path: '/pdfs/zh/制造供货协议.pdf' },
+  { label: '劳务合同', lang: 'zh', path: '/pdfs/zh/劳务合同.pdf' },
+  { label: 'Loan Agreement', lang: 'en', path: '/pdfs/en/LoanAgreement.pdf' },
+  { label: 'Software Developer Employment', lang: 'en', path: '/pdfs/en/SOFTWARE_DEVELOPE_REMPLOYMENT.pdf' },
+];
+
+// 多种合同类型的示例文本（中英文）
+const SAMPLE_TEXTS = [
+  {
+    key: 'employment',
+    labelZh: '劳动合同',
+    labelEn: 'Employment Agreement',
+    textZh: `劳动合同示例\n甲方：某科技有限公司\n乙方：张三\n岗位：前端工程师\n试用期：3个月\n薪酬：基本工资+绩效\n主要条款：\n1. 工作时间与休假；\n2. 保密与知识产权归属；\n3. 竞业及违约责任；\n4. 解除与经济补偿；\n5. 争议解决与适用法。`,
+    textEn: `Employment Agreement Sample\nEmployer: ABC Tech Co., Ltd.\nEmployee: John Doe\nPosition: Frontend Engineer\nProbation: 3 months\nCompensation: Base + Performance\nMain Clauses:\n1. Working hours and leave;\n2. Confidentiality and IP assignment;\n3. Non-compete and liabilities;\n4. Termination and severance;\n5. Dispute resolution and governing law.`,
+  },
+  {
+    key: 'service',
+    labelZh: '服务协议',
+    labelEn: 'Service Agreement',
+    textZh: `服务协议示例\n甲方：委托方\n乙方：服务方\n服务范围：UI设计与前端实现\n交付：高保真稿+组件库\n费用：分里程碑支付\n主要条款：服务标准、变更管理、验收、费用与税费、违约与赔偿、保密与IP、争议解决。`,
+    textEn: `Service Agreement Sample\nClient: Party A\nContractor: Party B\nScope: UI design and frontend implementation\nDeliverables: Hi-fi mockups + component library\nPayment: Milestone-based\nKey Terms: Service levels, change management, acceptance, fees/taxes, default/remedies, confidentiality/IP, dispute resolution.`,
+  },
+  {
+    key: 'nda',
+    labelZh: '保密协议（NDA）',
+    labelEn: 'NDA',
+    textZh: `保密协议示例\n披露方：甲方\n接收方：乙方\n机密信息定义、使用目的限制、保密期限、例外情形、资料返还/销毁、禁令救济、适用法与争议解决。`,
+    textEn: `NDA Sample\nDisclosing Party: Party A\nReceiving Party: Party B\nConfidential info definition, purpose limitation, term, exclusions, return/destruction, injunctive relief, governing law and dispute resolution.`,
+  },
+  {
+    key: 'sales',
+    labelZh: '买卖合同',
+    labelEn: 'Sales Agreement',
+    textZh: `买卖合同示例\n标的：电子产品\n规格/数量：见附件清单\n价格：含税价\n交付：Incoterms 2020\n验收：到货7日内\n主要条款：风险转移、质量保证、付款、违约与索赔、不可抗力、争议解决。`,
+    textEn: `Sales Agreement Sample\nGoods: Electronics\nSpecs/Qty: See annex list\nPrice: Tax included\nDelivery: Incoterms 2020\nInspection: Within 7 days after arrival\nKey Terms: Risk transfer, warranty, payment, default/claims, force majeure, dispute resolution.`,
+  },
+  {
+    key: 'lease',
+    labelZh: '房屋租赁合同（住宅）',
+    labelEn: 'Residential Lease',
+    textZh: `住宅租赁合同示例\n地址：上海市XX路XX号\n租期：12个月\n租金与押金：详见条款\n主要条款：维修责任、入住检查、续租/退租、违约处理、房屋规则、争议解决。`,
+    textEn: `Residential Lease Sample\nAddress: No. XX, XX Road, Shanghai\nTerm: 12 months\nRent & Deposit: See clauses\nKey Terms: Maintenance, move-in checklist, renewal/move-out, default handling, house rules, dispute resolution.`,
+  },
+  {
+    key: 'loan',
+    labelZh: '借款协议',
+    labelEn: 'Loan Agreement',
+    textZh: `借款协议示例\n本金：人民币100,000元\n利率：年化8%\n期限：12个月\n还款：等额本息\n担保：无/保证/抵押\n主要条款：提前还款、违约事件与加速到期、费用与税费、争议解决。`,
+    textEn: `Loan Agreement Sample\nPrincipal: CNY 100,000\nInterest: 8% p.a.\nTerm: 12 months\nRepayment: Equal installments\nSecurity: None/Guarantee/Mortgage\nKey Terms: Prepayment, events of default and acceleration, fees/taxes, dispute resolution.`,
+  },
+];
+
 function App() {
   const { t, i18n } = useTranslation();
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   const handleGenerate = async () => {
     if (!inputText.trim()) {
@@ -37,7 +93,7 @@ function App() {
     try {
       const formData = new FormData();
       formData.append('text', inputText);
-      const response = await fetch('http://localhost:8000/generate_contract/', {
+      const response = await fetch('http://192.168.5.15:8000/generate_contract/', {
         method: 'POST',
         body: formData
       });
@@ -58,6 +114,21 @@ function App() {
     message.info(t('fillExample'));
   };
 
+  const handleFillExampleByKey = (key) => {
+    const item = SAMPLE_TEXTS.find(i => i.key === key);
+    if (!item) return;
+    setInputText(i18n.language === 'zh' ? item.textZh : item.textEn);
+    message.success(i18n.language === 'zh' ? `已填入：${item.labelZh}` : `Filled: ${item.labelEn}`);
+  };
+
+  const exampleMenu = (
+    <Menu onClick={({ key }) => handleFillExampleByKey(key)}>
+      {SAMPLE_TEXTS.map(i => (
+        <Menu.Item key={i.key}>{i18n.language === 'zh' ? i.labelZh : i.labelEn}</Menu.Item>
+      ))}
+    </Menu>
+  );
+
   const handleLangChange = ({ key }) => {
     i18n.changeLanguage(key);
   };
@@ -68,6 +139,17 @@ function App() {
       <Menu.Item key="en">English</Menu.Item>
     </Menu>
   );
+
+  const openPreview = (url) => {
+    setPreviewUrl(url);
+    setPreviewOpen(true);
+  };
+
+  const showcaseUrl = (
+    i18n.language === 'zh'
+      ? SAMPLE_PDFS.find(i => i.lang === 'zh')?.path
+      : SAMPLE_PDFS.find(i => i.lang === 'en')?.path
+  ) || SAMPLE_PDFS[0]?.path || '';
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
@@ -88,13 +170,24 @@ function App() {
               <Button type="text" icon={<QuestionCircleOutlined />} onClick={() => setShowModal(true)}>
                 {t('faq')}
               </Button>
-              <Button type="primary" icon={<UserOutlined />}>{t('login')}</Button>
+              <Button
+                type="primary"
+                icon={<HeartOutlined />}
+                href="https://paypal.me/helpassister"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {i18n.language === 'zh' ? '赞助（获得更多使用次数）' : 'Sponsor (get more uses)'}
+              </Button>
             </Space>
           </Col>
         </Row>
       </Header>
-      <Content style={{ minHeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Card style={{ width: 500, margin: '48px 0', borderRadius: 12, boxShadow: '0 4px 24px #e6eaf1' }}>
+      <Content style={{ minHeight: 600, padding: '32px 16px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <Row gutter={[24, 24]}>
+            <Col xs={24} md={12}>
+              <Card style={{ width: '100%', borderRadius: 12, boxShadow: '0 4px 24px #e6eaf1' }}>
           <Title level={4} style={{ textAlign: 'center', marginBottom: 8 }}>{t('inputTitle')}</Title>
           <Paragraph type="secondary" style={{ textAlign: 'center', marginBottom: 24 }}>
             {t('inputDesc')}
@@ -108,7 +201,12 @@ function App() {
             allowClear
           />
           <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: 16 }}>
-            <Button onClick={handleExample} type="dashed" icon={<InfoCircleOutlined />}>{t('exampleBtn')}</Button>
+            <Space>
+              <Button onClick={handleExample} type="dashed" icon={<InfoCircleOutlined />}>{t('exampleBtn')}</Button>
+              <Dropdown overlay={exampleMenu} placement="bottomLeft" trigger={['click']}>
+                <Button>{i18n.language === 'zh' ? '更多示例' : 'More Samples'}</Button>
+              </Dropdown>
+            </Space>
             <Button type="primary" loading={loading} onClick={handleGenerate} style={{ width: 180 }} size="large">
               {t('generateBtn')}
             </Button>
@@ -131,7 +229,92 @@ function App() {
               {t('downBtn')}
             </Button>
           )}
-        </Card>
+              </Card>
+            </Col>
+            <Col xs={24} md={12}>
+              <Card style={{ width: '100%', height: '100%', borderRadius: 12, boxShadow: '0 4px 24px #e6eaf1' }}>
+                <Title level={4} style={{ marginBottom: 8 }}>
+                  {i18n.language === 'zh' ? '即时预览' : 'Live Preview'}
+                </Title>
+                <Paragraph type="secondary" style={{ marginTop: -4, marginBottom: 12 }}>
+                  {i18n.language === 'zh' ? '右侧展示一个合同 PDF 示例，帮助快速了解效果' : 'A sample contract PDF to help you understand the output instantly'}
+                </Paragraph>
+                <div style={{ width: '100%', height: 600, borderRadius: 8, overflow: 'hidden', border: '1px solid #f0f0f0' }}>
+                  <iframe title="pdf-showcase" src={showcaseUrl} style={{ width: '100%', height: '100%', border: 0 }} />
+                </div>
+              </Card>
+            </Col>
+          </Row>
+          <Card style={{ width: '100%', marginTop: 24, borderRadius: 12, boxShadow: '0 4px 24px #e6eaf1' }}>
+          <Title level={4} style={{ marginBottom: 8 }}>
+            <span style={{display: 'inline-flex', alignItems: 'center', gap: 8}}>
+              <FilePdfOutlined style={{ color: '#d4380d' }} />
+              {i18n.language === 'zh' ? '示例合同预览' : 'Contract Sample Preview'}
+            </span>
+          </Title>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12}>
+              <Title level={5} style={{ marginTop: 0 }}>{i18n.language === 'zh' ? '中文示例' : 'Chinese Samples'}</Title>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                {SAMPLE_PDFS.filter(i => i.lang === 'zh').map(item => (
+                  <Row key={item.path} align="middle" justify="space-between" style={{ width: '100%' }}>
+                    <Col span={14}>
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                    </Col>
+                    <Col span={10} style={{ textAlign: 'right' }}>
+                      <Space>
+                        <Button size="small" icon={<EyeOutlined />} onClick={() => openPreview(item.path)}>
+                          {i18n.language === 'zh' ? '预览' : 'Preview'}
+                        </Button>
+                        <Button size="small" type="primary" icon={<DownloadOutlined />} href={item.path} download>
+                          {i18n.language === 'zh' ? '下载' : 'Download'}
+                        </Button>
+                      </Space>
+                    </Col>
+                  </Row>
+                ))}
+              </Space>
+            </Col>
+            <Col xs={24} md={12}>
+              <Title level={5} style={{ marginTop: 0 }}>{i18n.language === 'zh' ? '英文示例' : 'English Samples'}</Title>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                {SAMPLE_PDFS.filter(i => i.lang === 'en').map(item => (
+                  <Row key={item.path} align="middle" justify="space-between" style={{ width: '100%' }}>
+                    <Col span={14}>
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                    </Col>
+                    <Col span={10} style={{ textAlign: 'right' }}>
+                      <Space>
+                        <Button size="small" icon={<EyeOutlined />} onClick={() => openPreview(item.path)}>
+                          {i18n.language === 'zh' ? '预览' : 'Preview'}
+                        </Button>
+                        <Button size="small" type="primary" icon={<DownloadOutlined />} href={item.path} download>
+                          {i18n.language === 'zh' ? '下载' : 'Download'}
+                        </Button>
+                      </Space>
+                    </Col>
+                  </Row>
+                ))}
+              </Space>
+            </Col>
+          </Row>
+          </Card>
+        </div>
+        <Modal
+          title={i18n.language === 'zh' ? 'PDF 合同预览' : 'PDF Contract Preview'}
+          open={previewOpen}
+          onCancel={() => setPreviewOpen(false)}
+          footer={null}
+          width={980}
+          style={{ top: 24 }}
+          bodyStyle={{ padding: 0 }}
+        >
+          <iframe
+            title="pdf-preview"
+            src={previewUrl}
+            style={{ width: '100%', height: '80vh', border: 0, borderRadius: 8 }}
+          />
+        </Modal>
         <Modal
           title={t('faq')}
           open={showModal}

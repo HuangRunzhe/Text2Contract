@@ -44,7 +44,7 @@ async def generate_contract_by_ai(user_text: str) -> str:
             "role": "system",
             "content": (
                 "你是一个专业的合同LaTeX排版助手。请根据用户输入的合同要素，生成一份完整、规范、适合打印的合同LaTeX代码。要求如下："
-                "1. 输出完整的、可直接用pdflatex编译的LaTeX代码，包含文档类、必要的宏包、正文内容。"
+                "1. 输出完整的、可直接用xelatex编译的LaTeX代码，包含文档类、必要的宏包、正文内容。"
                 "2. 必须使用ctexart文档类，保证中文支持。"
                 "3. 不要有语法错误，不要有未闭合的环境或命令。"
                 "4. 不要输出多余的解释或注释，只输出LaTeX代码本身。"
