@@ -239,8 +239,24 @@ function App() {
                 <Paragraph type="secondary" style={{ marginTop: -4, marginBottom: 12 }}>
                   {i18n.language === 'zh' ? '右侧展示一个合同 PDF 示例，帮助快速了解效果' : 'A sample contract PDF to help you understand the output instantly'}
                 </Paragraph>
-                <div style={{ width: '100%', height: 600, borderRadius: 8, overflow: 'hidden', border: '1px solid #f0f0f0' }}>
+                <div style={{ width: '100%', height: 600, borderRadius: 8, overflow: 'hidden', border: '1px solid #f0f0f0', position: 'relative' }}>
                   <iframe title="pdf-showcase" src={showcaseUrl} style={{ width: '100%', height: '100%', border: 0 }} />
+                  <div 
+                    style={{ 
+                      position: 'absolute', 
+                      bottom: 8, 
+                      right: 8, 
+                      background: 'rgba(0,0,0,0.7)', 
+                      color: 'white', 
+                      padding: '4px 8px', 
+                      borderRadius: 4, 
+                      fontSize: 12,
+                      display: 'none'
+                    }}
+                    className="mobile-pdf-hint"
+                  >
+                    {i18n.language === 'zh' ? '点击查看大图' : 'Tap to view full size'}
+                  </div>
                 </div>
               </Card>
             </Col>

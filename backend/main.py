@@ -27,13 +27,26 @@ async def generate_contract(text: str = Form(...)):
     latex_code = render_latex(contract_content)
     tmp_dir = "tmp_files"
     os.makedirs(tmp_dir, exist_ok=True)
-    unique_id = uuid.uuid4().hex
-    tex_file = os.path.join(tmp_dir, f"tmp_{unique_id}.tex")
-    pdf_file = os.path.join(tmp_dir, f"tmp_{unique_id}.pdf")
+    short_id = uuid.uuid4().hex[:8]
+    base_name = f"c_{short_id}"
+    tex_file = os.path.join(tmp_dir, f"{base_name}.tex")
+    pdf_file = os.path.join(tmp_dir, f"{base_name}.pdf")
     with open(tex_file, 'w', encoding='utf-8') as f:
         f.write(latex_code)
     os.system(f"xelatex -interaction=nonstopmode -output-directory={tmp_dir} {tex_file}")
     if os.path.exists(pdf_file):
+        # 清理中间文件，保留 PDF 便于管理
+        try:
+            aux_path = os.path.join(tmp_dir, f"{base_name}.aux")
+            log_path = os.path.join(tmp_dir, f"{base_name}.log")
+            if os.path.exists(aux_path):
+                os.remove(aux_path)
+            if os.path.exists(log_path):
+                os.remove(log_path)
+            if os.path.exists(tex_file):
+                os.remove(tex_file)
+        except Exception:
+            pass
         return FileResponse(pdf_file, filename="contract.pdf", media_type="application/pdf")
     else:
         return JSONResponse({"error": "PDF生成失败"}, status_code=500)

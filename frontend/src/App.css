@@ -38,71 +38,156 @@
 }
 
 /* 移动端适配优化 */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .ant-layout {
     min-height: 100vh !important;
   }
   .ant-layout-header {
     padding: 0 8px !important;
   }
+  .ant-layout-content {
+    padding: 16px 8px !important;
+    min-height: auto !important;
+  }
+  
+  /* 主内容区域移动端优化 */
+  .ant-layout-content > div {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  /* 左右布局在移动端改为上下 */
   .ant-row {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+  
+  .ant-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 16px 0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px #e6eaf1 !important;
+    padding: 16px !important;
+  }
+  
+  /* PDF预览区域移动端优化 */
+  .ant-card iframe {
+    height: 400px !important;
+    min-height: 300px !important;
+  }
+  
+  /* 移动端PDF预览提示 */
+  .mobile-pdf-hint {
+    display: block !important;
+  }
+  
+  /* 按钮组移动端优化 */
+  .ant-space {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .ant-btn {
+    font-size: 14px !important;
+    height: 36px !important;
+    padding: 0 12px !important;
+    min-width: auto !important;
+  }
+  
+  .ant-btn-lg {
+    height: 40px !important;
+    font-size: 15px !important;
+  }
+  
+  /* 输入框移动端优化 */
+  .ant-input, .ant-input-textarea {
+    font-size: 16px !important;
+  }
+  
+  .ant-textarea {
+    min-height: 120px !important;
+  }
+  
+  /* 标题和文字移动端优化 */
+  .ant-typography, .ant-typography-title, .ant-typography-paragraph {
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+  }
+  
+  .ant-typography-title {
+    margin-bottom: 8px !important;
+  }
+  
+  /* 示例合同列表移动端优化 */
+  .ant-space-vertical {
+    width: 100% !important;
+  }
+  
+  .ant-space-vertical .ant-row {
+    margin-bottom: 8px !important;
+  }
+  
+  .ant-space-vertical .ant-col {
+    padding: 0 4px !important;
+  }
+  
+  /* 模态框移动端优化 */
+  .ant-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 0 !important;
+    top: 10px !important;
+  }
+  
+  .ant-modal-content {
+    padding: 8px !important;
+  }
+  
+  .ant-modal-body {
+    padding: 0 !important;
+  }
+  
+  .ant-modal-body iframe {
+    height: 70vh !important;
+    min-height: 400px !important;
+  }
+  
+  /* 页脚移动端优化 */
+  .ant-layout-footer {
+    padding: 16px 8px !important;
+    font-size: 12px !important;
+    text-align: center !important;
+  }
+  
+  /* 头部移动端优化 */
+  .ant-layout-header .ant-row {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 8px !important;
   }
-  .ant-card {
+  
+  .ant-layout-header .ant-space {
     width: 100% !important;
-    min-width: 0 !important;
-    margin: 24px 0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 8px #e6eaf1 !important;
-    padding: 12px !important;
+    justify-content: space-between !important;
   }
-  .ant-typography, .ant-typography-title, .ant-typography-paragraph {
-    font-size: 16px !important;
-  }
-  .ant-input, .ant-input-textarea {
-    font-size: 15px !important;
-  }
-  .ant-btn {
-    font-size: 15px !important;
-    height: 38px !important;
-    padding: 0 12px !important;
-  }
-  .ant-modal {
-    width: 95vw !important;
-    max-width: 95vw !important;
-    left: 2.5vw !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .ant-layout-footer {
-    padding: 12px 8px !important;
+  
+  .ant-layout-header .ant-btn {
     font-size: 13px !important;
-    text-align: center !important;
+    height: 32px !important;
+    padding: 0 8px !important;
   }
-  .ant-space-vertical {
-    width: 100% !important;
-    align-items: center !important;
-  }
-  .ant-btn, .ant-btn-block {
-    width: 100% !important;
-    margin-bottom: 8px !important;
-  }
-  .ant-dropdown {
-    width: 100% !important;
-  }
-  .ant-modal-content {
-    padding: 12px !important;
-  }
-  .ant-layout-content {
-    padding: 0 !important;
-    min-height: 400px !important;
-  }
-  .ant-typography-secondary {
-    font-size: 13px !important;
-  }
-  .ant-card .ant-btn {
-    margin-bottom: 0 !important;
+  
+  /* 赞助按钮移动端优化 */
+  .ant-btn-primary {
+    font-size: 12px !important;
+    height: 32px !important;
+    padding: 0 8px !important;
   }
 }
