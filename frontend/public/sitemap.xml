@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://pdf.huangrunzhe.top/</loc>
-    <lastmod>2024-01-22</lastmod>
+    <lastmod>2025-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://pdf.huangrunzhe.top/?lang=zh"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://pdf.huangrunzhe.top/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://pdf.huangrunzhe.top/?lang=zh"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pdf.huangrunzhe.top/"/>
+    <image:image>
+      <image:loc>https://pdf.huangrunzhe.top/preview.png</image:loc>
+      <image:title>Text to Contract - Convert Text to PDF Contract</image:title>
+      <image:caption>AI-powered text to contract generator that converts text to professional PDF contracts</image:caption>
+    </image:image>
   </url>
 </urlset>
 
