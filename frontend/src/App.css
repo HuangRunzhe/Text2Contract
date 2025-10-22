@@ -166,6 +166,17 @@
     text-align: center !important;
   }
   
+  /* 社区链接移动端优化 */
+  .ant-layout-footer a {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+    margin: 2px !important;
+  }
+  
+  .ant-layout-footer .ant-space {
+    justify-content: center !important;
+  }
+  
   /* 头部移动端优化 */
   .ant-layout-header .ant-row {
     flex-direction: column !important;

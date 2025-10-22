@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Typography, Input, Button, message, Card, Spin, Modal, Row, Col, Space, Dropdown, Menu, Divider } from 'antd';
-import { DownloadOutlined, UserOutlined, InfoCircleOutlined, QuestionCircleOutlined, GlobalOutlined, GithubOutlined, EyeOutlined, FilePdfOutlined, HeartOutlined } from '@ant-design/icons';
+import { DownloadOutlined, UserOutlined, InfoCircleOutlined, QuestionCircleOutlined, GlobalOutlined, GithubOutlined, EyeOutlined, FilePdfOutlined, HeartOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import './i18n';
 import 'antd/dist/reset.css';
@@ -347,7 +347,73 @@ function App() {
         <Space direction="vertical" size={0} style={{ width: '100%' }}>
           <Text>{t('footer1')}</Text>
           <Text type="secondary" style={{ fontSize: 12 }}>{t('footer2')}</Text>
-          <span style={{fontSize: 14, color: '#888', marginTop: 2}}>开源地址：</span>
+          
+          {/* 社区链接 */}
+          <div style={{ marginTop: 12, marginBottom: 8 }}>
+            <Text type="secondary" style={{ fontSize: 13, marginBottom: 8, display: 'block' }}>
+              {i18n.language === 'zh' ? '加入社区交流' : 'Join Our Community'}
+            </Text>
+            <Space size={8} wrap>
+              <a
+                href="https://discord.gg/VTpU6DsnNG"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  background: '#5865F2',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '6px 12px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'background 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#4752C4';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = '#5865F2';
+                }}
+              >
+                <MessageOutlined style={{ fontSize: 14 }} />
+                Discord
+              </a>
+              <a
+                href="https://t.me/+hac-zqnBjXs4NzI9"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  background: '#0088cc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '6px 12px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'background 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#0077b3';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = '#0088cc';
+                }}
+              >
+                <SendOutlined style={{ fontSize: 14 }} />
+                Telegram
+              </a>
+            </Space>
+          </div>
+          
+          <span style={{fontSize: 14, color: '#888', marginTop: 8}}>开源地址：</span>
           <a
             href="https://github.com/HuangRunzhe/Text2Contract"
             target="_blank"
