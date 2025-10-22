@@ -37,6 +37,137 @@
   }
 }
 
+/* 打字光标闪烁动画 */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Apple Intelligence 风格炫彩边框动画 */
+@keyframes apple-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes apple-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+/* 炫彩边框容器 - Apple Intelligence 风格 */
+.ai-generating {
+  position: relative;
+  border-radius: 8px;
+  padding: 1.5px;
+  background: linear-gradient(
+    120deg,
+    #a78bfa 0%,
+    #ec4899 25%,
+    #f97316 50%,
+    #06b6d4 75%,
+    #8b5cf6 100%
+  );
+  background-size: 200% 200%;
+  animation: apple-gradient 6s ease infinite;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 外层模糊光晕 */
+.ai-generating::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 16px;
+  background: linear-gradient(
+    120deg,
+    rgba(167, 139, 250, 0.3) 0%,
+    rgba(236, 72, 153, 0.3) 25%,
+    rgba(249, 115, 22, 0.3) 50%,
+    rgba(6, 182, 212, 0.3) 75%,
+    rgba(139, 92, 246, 0.3) 100%
+  );
+  background-size: 200% 200%;
+  animation: apple-gradient 6s ease infinite, apple-glow 3s ease-in-out infinite;
+  filter: blur(24px);
+  z-index: -1;
+}
+
+/* 中层柔和光晕 */
+.ai-generating::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 12px;
+  background: linear-gradient(
+    120deg,
+    rgba(167, 139, 250, 0.2) 0%,
+    rgba(236, 72, 153, 0.2) 25%,
+    rgba(249, 115, 22, 0.2) 50%,
+    rgba(6, 182, 212, 0.2) 75%,
+    rgba(139, 92, 246, 0.2) 100%
+  );
+  background-size: 200% 200%;
+  animation: apple-gradient 6s ease infinite;
+  filter: blur(12px);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+/* 内部输入框 */
+.ai-generating-inner {
+  background: white !important;
+  border-radius: 6.5px !important;
+  border: none !important;
+  position: relative;
+  z-index: 1;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ai-generating-inner:focus {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  outline: none !important;
+}
+
+/* 悬浮时增强效果 */
+.ai-generating:hover {
+  padding: 2px;
+}
+
+.ai-generating:hover::before {
+  inset: -20px;
+  opacity: 0.9;
+}
+
 /* 移动端适配优化 */
 @media (max-width: 768px) {
   .ant-layout {

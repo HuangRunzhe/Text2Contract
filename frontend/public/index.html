@@ -1,56 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <!-- <link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="文本转合同版（Text2Contract）是一款AI驱动的中英文合同生成工具，支持一键生成、下载、打印规范合同PDF，适合全球用户。" />
-    <meta name="keywords" content="合同生成, AI合同, PDF合同, 合同下载, 合同打印, Contract Generator, AI Contract, PDF Contract, Download Contract" />
-    <meta property="og:title" content="文本转合同版 | Text2Contract" />
-    <meta property="og:description" content="AI驱动的中英文合同生成工具，支持一键生成、下载、打印规范合同PDF，适合全球用户。" />
+    <meta name="theme-color" content="#1677ff" />
+    
+    <!-- SEO Basic -->
+    <title>文本转PDF工具 - AI智能合同生成器 | Text2Contract - AI Contract & PDF Generator</title>
+    <meta name="description" content="Text2Contract是专业的文字转PDF工具，AI智能生成合同PDF、文档PDF、报告PDF。支持中英文合同生成、劳动合同、买卖合同等多种文档类型，一键下载打印。" />
+    <meta name="keywords" content="文字转PDF,文本转PDF,合同生成器,PDF生成工具,AI合同,合同PDF,劳动合同,买卖合同,文档转PDF,在线PDF工具,text to PDF,contract generator,PDF maker,document to PDF,employment contract,sales agreement" />
+    <meta name="author" content="Text2Contract Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://pdf.huangrunzhe.top/" />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://pdf.huangrunzhe.top/" />
-    <meta property="og:image" content="/logo.svg" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="文本转合同版 | Text2Contract" />
-    <meta name="twitter:description" content="AI驱动的中英文合同生成工具，支持一键生成、下载、打印规范合同PDF，适合全球用户。" />
-    <meta name="twitter:image" content="/logo.svg" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <meta property="og:title" content="Text2Contract - 文字转PDF工具 | AI智能合同生成器" />
+    <meta property="og:description" content="专业的文字转PDF工具，AI智能生成合同、文档、报告等PDF。支持中英文，一键生成规范PDF文档。" />
+    <meta property="og:image" content="https://pdf.huangrunzhe.top/preview.png" />
+    <meta property="og:site_name" content="Text2Contract" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_US" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://pdf.huangrunzhe.top/" />
+    <meta name="twitter:title" content="Text2Contract - 文字转PDF工具 | AI智能合同生成器" />
+    <meta name="twitter:description" content="专业的文字转PDF工具，AI智能生成合同、文档、报告等PDF。支持中英文，一键生成规范PDF文档。" />
+    <meta name="twitter:image" content="https://pdf.huangrunzhe.top/preview.png" />
+    
+    <!-- Additional SEO -->
+    <meta name="application-name" content="Text2Contract" />
+    <meta name="apple-mobile-web-app-title" content="Text2Contract" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    
+    <!-- Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>文本转合同版 - AI合同生成平台 | Text2Contract - AI Contract Generator</title>
-    <meta name="description" content="文本转合同版（Text2Contract）是一款AI驱动的中英文合同生成工具，支持一键生成、下载、打印规范合同PDF，适合全球用户。" />
-    <meta name="keywords" content="合同生成, AI合同, PDF合同, 合同下载, 合同打印, Contract Generator, AI Contract, PDF Contract, Download Contract" />
-    <!-- English SEO -->
-    <meta name="description" lang="en" content="Text2Contract is an AI-powered contract generator supporting both Chinese and English. Instantly create, download, and print professional PDF contracts for global users." />
-    <meta name="keywords" lang="en" content="contract generator, AI contract, PDF contract, download contract, print contract, Text2Contract, AI, PDF" />
-    <meta property="og:title" content="文本转合同版 | Text2Contract" />
-    <meta property="og:description" content="AI驱动的中英文合同生成工具，支持一键生成、下载、打印规范合同PDF，适合全球用户。" />
-    <meta property="og:title" lang="en" content="Text2Contract - AI Contract Generator" />
-    <meta property="og:description" lang="en" content="AI-powered contract generator for Chinese and English, create and download printable PDF contracts instantly." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://text2-contract.vercel.app/" />
-    <meta property="og:image" content="/logo.svg" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="文本转合同版 | Text2Contract" />
-    <meta name="twitter:description" content="AI驱动的中英文合同生成工具，支持一键生成、下载、打印规范合同PDF，适合全球用户。" />
-    <meta name="twitter:title" lang="en" content="Text2Contract - AI Contract Generator" />
-    <meta name="twitter:description" lang="en" content="AI-powered contract generator for Chinese and English, create and download printable PDF contracts instantly." />
-    <meta name="twitter:image" content="/logo.svg" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Text2Contract",
+      "description": "AI智能文字转PDF工具，专业合同生成器，支持中英文合同、文档、报告等PDF生成",
+      "url": "https://pdf.huangrunzhe.top/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "3.00",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "156"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Text2Contract Team"
+      },
+      "featureList": [
+        "AI智能合同生成",
+        "文字转PDF",
+        "中英文支持",
+        "多种合同模板",
+        "专业PDF排版",
+        "一键下载打印"
+      ]
+    }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

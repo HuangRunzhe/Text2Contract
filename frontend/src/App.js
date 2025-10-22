@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Layout, Typography, Input, Button, message, Card, Spin, Modal, Row, Col, Space, Dropdown, Menu, Divider } from 'antd';
-import { DownloadOutlined, UserOutlined, InfoCircleOutlined, QuestionCircleOutlined, GlobalOutlined, GithubOutlined, EyeOutlined, FilePdfOutlined, HeartOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Layout, Typography, Input, Button, message, Card, Spin, Modal, Row, Col, Space, Dropdown, Menu, Divider, Badge } from 'antd';
+import { DownloadOutlined, UserOutlined, InfoCircleOutlined, QuestionCircleOutlined, GlobalOutlined, GithubOutlined, EyeOutlined, FilePdfOutlined, HeartOutlined, MessageOutlined, SendOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import './i18n';
 import 'antd/dist/reset.css';
@@ -77,15 +77,100 @@ const SAMPLE_TEXTS = [
 function App() {
   const { t, i18n } = useTranslation();
   const [inputText, setInputText] = useState('');
+  const [activationCode, setActivationCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
+  
+  // 动画演示状态
+  const [demoText, setDemoText] = useState('');
+  const [demoStage, setDemoStage] = useState('typing'); // typing, generating, complete
+  const [showDemoPdf, setShowDemoPdf] = useState(false);
+
+  // 获取展示用的PDF URL
+  const showcaseUrl = (
+    i18n.language === 'zh'
+      ? SAMPLE_PDFS.find(i => i.lang === 'zh')?.path
+      : SAMPLE_PDFS.find(i => i.lang === 'en')?.path
+  ) || SAMPLE_PDFS[0]?.path || '';
+
+  // 动画演示逻辑
+  useEffect(() => {
+    const demoPromptZh = '甲方：XXX科技公司\n乙方：张三\n岗位：高级软件工程师\n试用期：3个月\n薪资：月薪15000元\n工作地点：北京市朝阳区\n合同期限：3年\n主要条款：遵守公司规章制度，保密协议，社保福利完善';
+    const demoPromptEn = 'Party A: XXX Tech Company\nParty B: John Smith\nPosition: Senior Software Engineer\nProbation: 3 months\nSalary: $3000/month\nLocation: Beijing\nTerm: 3 years\nTerms: Follow company rules, NDA, full benefits';
+
+    let currentIndex = 0;
+    let typingTimer = null;
+    let generatingTimer = null;
+    let completeTimer = null;
+    let restartTimer = null;
+    let isCancelled = false;
+
+    const startAnimation = () => {
+      if (isCancelled) return;
+      
+      // 每次动画开始时重新获取当前语言的文本
+      const currentText = i18n.language === 'zh' ? demoPromptZh : demoPromptEn;
+      
+      // 重置状态
+      setDemoText('');
+      setDemoStage('typing');
+      setShowDemoPdf(false);
+      currentIndex = 0;
+
+      // 打字效果
+      typingTimer = setInterval(() => {
+        if (isCancelled) {
+          clearInterval(typingTimer);
+          return;
+        }
+        
+        if (currentIndex < currentText.length) {
+          setDemoText(currentText.substring(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(typingTimer);
+          // 打字完成，进入生成阶段
+          generatingTimer = setTimeout(() => {
+            if (isCancelled) return;
+            setDemoStage('generating');
+            // 生成中持续2秒
+            completeTimer = setTimeout(() => {
+              if (isCancelled) return;
+              setDemoStage('complete');
+              setShowDemoPdf(true);
+              // 完成后停留3秒，然后重新开始
+              restartTimer = setTimeout(() => {
+                if (isCancelled) return;
+                startAnimation();
+              }, 4000);
+            }, 2000);
+          }, 500);
+        }
+      }, 50);
+    };
+
+    startAnimation();
+
+    return () => {
+      // 清理所有定时器
+      isCancelled = true;
+      if (typingTimer) clearInterval(typingTimer);
+      if (generatingTimer) clearTimeout(generatingTimer);
+      if (completeTimer) clearTimeout(completeTimer);
+      if (restartTimer) clearTimeout(restartTimer);
+    };
+  }, [i18n.language]);
 
   const handleGenerate = async () => {
     if (!inputText.trim()) {
       message.warning(t('failMsg'));
+      return;
+    }
+    if (!activationCode.trim()) {
+      message.warning(t('activationCodeRequired'));
       return;
     }
     setLoading(true);
@@ -93,17 +178,24 @@ function App() {
     try {
       const formData = new FormData();
       formData.append('text', inputText);
+      formData.append('activation_code', activationCode);
       const response = await fetch('http://192.168.5.15:8000/generate_contract/', {
         method: 'POST',
         body: formData
       });
-      if (!response.ok) throw new Error(t('failMsg'));
+      if (!response.ok) {
+        // 如果是401错误，说明激活码无效
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(t('activationCodeInvalid'));
+        }
+        throw new Error(t('failMsg'));
+      }
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       setPdfUrl(url);
       message.success(t('successMsg'));
     } catch (e) {
-      message.error(t('failMsg'));
+      message.error(e.message || t('failMsg'));
     } finally {
       setLoading(false);
     }
@@ -145,12 +237,6 @@ function App() {
     setPreviewOpen(true);
   };
 
-  const showcaseUrl = (
-    i18n.language === 'zh'
-      ? SAMPLE_PDFS.find(i => i.lang === 'zh')?.path
-      : SAMPLE_PDFS.find(i => i.lang === 'en')?.path
-  ) || SAMPLE_PDFS[0]?.path || '';
-
   return (
     <Layout style={{ minHeight: '100vh', background: '#f5f7fa' }}>
       <Header style={{ background: '#fff', boxShadow: '0 2px 8px #f0f1f2', padding: 0 }}>
@@ -173,11 +259,15 @@ function App() {
               <Button
                 type="primary"
                 icon={<HeartOutlined />}
-                href="https://paypal.me/helpassister"
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => {
+                  const pricingSection = document.querySelector('.pricing-section');
+                  if (pricingSection) {
+                    pricingSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
               >
-                {i18n.language === 'zh' ? '赞助（获得更多使用次数）' : 'Sponsor (get more uses)'}
+                {i18n.language === 'zh' ? '查看定价' : 'View Pricing'}
               </Button>
             </Space>
           </Col>
@@ -185,6 +275,171 @@ function App() {
       </Header>
       <Content style={{ minHeight: 600, padding: '32px 16px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          {/* 动画演示区域 */}
+          <Card style={{ marginBottom: 24, borderRadius: 8, overflow: 'hidden', border: '1px solid #e8e8e8' }}>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <Title level={3} style={{ marginBottom: 8 }}>
+                {t('demoTitle')}
+              </Title>
+            </div>
+            <Row gutter={[24, 24]} align="stretch">
+              <Col xs={24} md={12}>
+                <div style={{ 
+                  background: '#fafafa', 
+                  borderRadius: 8, 
+                  padding: 16, 
+                  height: '100%',
+                  minHeight: 300,
+                  border: '1px solid #e8e8e8',
+                  position: 'relative'
+                }}>
+                  <div style={{ 
+                    fontSize: 12, 
+                    color: '#999', 
+                    marginBottom: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}>
+                    <div style={{ 
+                      width: 12, 
+                      height: 12, 
+                      borderRadius: '50%', 
+                      background: demoStage === 'typing' ? '#52c41a' : '#d9d9d9' 
+                    }} />
+                    {i18n.language === 'zh' ? '输入合同信息' : 'Input Contract Details'}
+                  </div>
+                  <div className={demoStage === 'generating' || demoStage === 'complete' ? 'ai-generating' : ''}>
+                    <TextArea
+                      value={demoText}
+                      readOnly
+                      rows={10}
+                      style={{ 
+                        resize: 'none',
+                        cursor: 'default',
+                        background: '#fff',
+                        fontFamily: 'monospace'
+                      }}
+                      className={demoStage === 'generating' || demoStage === 'complete' ? 'ai-generating-inner' : ''}
+                      placeholder={i18n.language === 'zh' ? '正在输入...' : 'Typing...'}
+                    />
+                  </div>
+                  {demoStage === 'typing' && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 24,
+                      right: 24,
+                      width: 2,
+                      height: 20,
+                      background: '#1677ff',
+                      animation: 'blink 1s infinite'
+                    }} />
+                  )}
+                  {demoStage === 'generating' && (
+                    <div style={{ 
+                      marginTop: 16, 
+                      textAlign: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8
+                    }}>
+                      <Spin size="small" />
+                      <Text type="secondary">{t('demoGenerating')}</Text>
+                    </div>
+                  )}
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ 
+                  background: '#fafafa', 
+                  borderRadius: 8, 
+                  padding: 16, 
+                  height: '100%',
+                  minHeight: 300,
+                  border: '1px solid #e8e8e8',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div style={{ 
+                    fontSize: 12, 
+                    color: '#999', 
+                    marginBottom: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}>
+                    <div style={{ 
+                      width: 12, 
+                      height: 12, 
+                      borderRadius: '50%', 
+                      background: demoStage === 'complete' ? '#52c41a' : '#d9d9d9' 
+                    }} />
+                    {i18n.language === 'zh' ? '生成专业PDF合同' : 'Generate Professional PDF'}
+                  </div>
+                  {!showDemoPdf ? (
+                    <div style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#fff',
+                      borderRadius: 8,
+                      border: '2px dashed #d9d9d9'
+                    }}>
+                      {demoStage === 'generating' ? (
+                        <div style={{ textAlign: 'center' }}>
+                          <Spin size="large" />
+                          <div style={{ marginTop: 16, color: '#666' }}>{t('demoGenerating')}</div>
+                        </div>
+                      ) : (
+                        <div style={{ textAlign: 'center', color: '#999' }}>
+                          <FilePdfOutlined style={{ fontSize: 48, color: '#d9d9d9' }} />
+                          <div style={{ marginTop: 8 }}>
+                            {i18n.language === 'zh' ? '等待生成...' : 'Waiting...'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{
+                      flex: 1,
+                      background: '#fff',
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      position: 'relative',
+                      animation: 'fadeIn 0.5s ease-in'
+                    }}>
+                      <iframe
+                        title="demo-pdf"
+                        src={showcaseUrl}
+                        style={{ width: '100%', height: '100%', border: 0, minHeight: 260 }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: '#52c41a',
+                        color: '#fff',
+                        padding: '4px 12px',
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4
+                      }}>
+                        <CheckCircleOutlined />
+                        {t('demoComplete')}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          </Card>
+          
           <Row gutter={[24, 24]}>
             <Col xs={24} md={12}>
               <Card style={{ width: '100%', borderRadius: 12, boxShadow: '0 4px 24px #e6eaf1' }}>
@@ -192,22 +447,60 @@ function App() {
           <Paragraph type="secondary" style={{ textAlign: 'center', marginBottom: 24 }}>
             {t('inputDesc')}
           </Paragraph>
-          <TextArea
-            rows={8}
-            value={inputText}
-            onChange={e => setInputText(e.target.value)}
-            placeholder={t('inputPlaceholder')}
-            style={{ marginBottom: 16, resize: 'vertical' }}
-            allowClear
-          />
-          <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: 16 }}>
-            <Space>
+          <div className={loading ? 'ai-generating' : ''} style={{ marginBottom: 16, borderRadius: 8 }}>
+            <TextArea
+              rows={8}
+              value={inputText}
+              onChange={e => setInputText(e.target.value)}
+              placeholder={t('inputPlaceholder')}
+              style={{ resize: 'vertical' }}
+              className={loading ? 'ai-generating-inner' : ''}
+              allowClear
+            />
+          </div>
+          <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap' }}>
+            <Space wrap>
               <Button onClick={handleExample} type="dashed" icon={<InfoCircleOutlined />}>{t('exampleBtn')}</Button>
               <Dropdown overlay={exampleMenu} placement="bottomLeft" trigger={['click']}>
                 <Button>{i18n.language === 'zh' ? '更多示例' : 'More Samples'}</Button>
               </Dropdown>
             </Space>
-            <Button type="primary" loading={loading} onClick={handleGenerate} style={{ width: 180 }} size="large">
+          </Space>
+          <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Text strong>{t('activationCode')}:</Text>
+              <Button 
+                type="link" 
+                size="small" 
+                icon={<QuestionCircleOutlined />}
+                onClick={() => {
+                  Modal.info({
+                    title: t('howToGetCode'),
+                    content: t('codeInstruction'),
+                  });
+                }}
+                style={{ padding: 0, height: 'auto' }}
+              >
+                {t('howToGetCode')}
+              </Button>
+            </div>
+            <Input
+              value={activationCode}
+              onChange={e => setActivationCode(e.target.value)}
+              placeholder={t('activationCodePlaceholder')}
+              style={{ marginBottom: 8 }}
+              size="large"
+              prefix={<UserOutlined style={{ color: '#999' }} />}
+              allowClear
+            />
+            <Button 
+              type="primary" 
+              loading={loading} 
+              onClick={handleGenerate} 
+              block 
+              size="large"
+              style={{ height: 48 }}
+            >
               {t('generateBtn')}
             </Button>
           </Space>
@@ -314,6 +607,132 @@ function App() {
               </Space>
             </Col>
           </Row>
+          </Card>
+
+          {/* 定价部分 */}
+          <Card className="pricing-section" style={{ width: '100%', marginTop: 24, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+            <div style={{ textAlign: 'center', marginBottom: 32 }}>
+              <Title level={3} style={{ marginBottom: 8 }}>
+                {t('pricingTitle')}
+              </Title>
+              <Text type="secondary">{t('pricingSubtitle')}</Text>
+            </div>
+            <Row gutter={[24, 24]}>
+              {/* 基础套餐 */}
+              <Col xs={24} md={12}>
+                <Card
+                  style={{
+                    height: '100%',
+                    borderRadius: 8,
+                    border: '1px solid #d9d9d9'
+                  }}
+                  bodyStyle={{ padding: '24px' }}
+                >
+                  <div style={{ textAlign: 'center' }}>
+                    <Title level={4} style={{ marginBottom: 16 }}>
+                      {t('basicPlan')}
+                    </Title>
+                    <div style={{ marginBottom: 8 }}>
+                      <span style={{ fontSize: 36, fontWeight: 'bold', color: '#000' }}>{t('price3')}</span>
+                    </div>
+                    <div style={{ marginBottom: 24, color: '#666' }}>
+                      {t('uses20')}
+                    </div>
+                    <Divider style={{ margin: '16px 0' }} />
+                    <Space direction="vertical" size={8} style={{ width: '100%', marginBottom: 24, textAlign: 'left' }}>
+                      <div style={{ fontSize: 14 }}>
+                        <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                        {t('feature1')}
+                      </div>
+                      <div style={{ fontSize: 14 }}>
+                        <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                        {t('feature2')}
+                      </div>
+                      <div style={{ fontSize: 14 }}>
+                        <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                        {t('feature3')}
+                      </div>
+                    </Space>
+                    <Button
+                      type="default"
+                      size="large"
+                      block
+                      href="https://paypal.me/helpassister/3"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {t('purchaseNow')}
+                    </Button>
+                  </div>
+                </Card>
+              </Col>
+
+              {/* 专业套餐 */}
+              <Col xs={24} md={12}>
+                <Badge.Ribbon 
+                  text={t('mostPopular')} 
+                  color="#1677ff"
+                >
+                  <Card
+                    style={{
+                      height: '100%',
+                      borderRadius: 8,
+                      border: '2px solid #1677ff'
+                    }}
+                    bodyStyle={{ padding: '24px' }}
+                  >
+                    <div style={{ textAlign: 'center' }}>
+                      <Title level={4} style={{ marginBottom: 16 }}>
+                        {t('proPlan')}
+                      </Title>
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{ fontSize: 36, fontWeight: 'bold', color: '#000' }}>{t('price15')}</span>
+                      </div>
+                      <div style={{ marginBottom: 24, color: '#666' }}>
+                        {t('usesUnlimited')}
+                      </div>
+                      <Divider style={{ margin: '16px 0' }} />
+                      <Space direction="vertical" size={8} style={{ width: '100%', marginBottom: 24, textAlign: 'left' }}>
+                        <div style={{ fontSize: 14 }}>
+                          <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                          {t('feature1')}
+                        </div>
+                        <div style={{ fontSize: 14 }}>
+                          <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                          {t('feature2')}
+                        </div>
+                        <div style={{ fontSize: 14 }}>
+                          <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                          {t('feature3')}
+                        </div>
+                        <div style={{ fontSize: 14 }}>
+                          <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                          {t('feature4')}
+                        </div>
+                        <div style={{ fontSize: 14 }}>
+                          <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                          {t('feature5')}
+                        </div>
+                        <div style={{ fontSize: 14 }}>
+                          <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                          {t('feature6')}
+                        </div>
+                      </Space>
+                      <Button
+                        type="primary"
+                        size="large"
+                        block
+                        href="https://paypal.me/helpassister/15"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('purchaseNow')}
+                      </Button>
+                    </div>
+                  </Card>
+                </Badge.Ribbon>
+              </Col>
+            </Row>
           </Card>
         </div>
         <Modal

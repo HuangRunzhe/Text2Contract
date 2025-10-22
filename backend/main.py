@@ -1,10 +1,12 @@
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, UploadFile, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
 from openai import OpenAI
 import re
+import json
+from datetime import datetime
 
 app = FastAPI()
 
@@ -20,9 +22,74 @@ app.add_middleware(
 # 初始化 DeepSeek 客户端
 client = OpenAI(api_key="sk-Sf5EefxfATqabe0TX4Tus3aNMk9OcTEuZZ7HL9JIElEcSvf9", base_url="https://tbnx.plus7.plus/v1")
 
+# 激活码数据文件
+ACTIVATION_CODES_FILE = "activation_codes.json"
+
+def load_activation_codes():
+    """加载激活码数据"""
+    if not os.path.exists(ACTIVATION_CODES_FILE):
+        return {}
+    try:
+        with open(ACTIVATION_CODES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_activation_codes(codes_data):
+    """保存激活码数据"""
+    with open(ACTIVATION_CODES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(codes_data, f, ensure_ascii=False, indent=2)
+
+def verify_activation_code(code: str) -> bool:
+    """
+    验证激活码是否有效
+    返回: (是否有效, 剩余次数或-1表示无限次)
+    """
+    codes_data = load_activation_codes()
+    
+    if code not in codes_data:
+        return False, 0
+    
+    code_info = codes_data[code]
+    
+    # 检查是否过期
+    if 'expire_date' in code_info and code_info['expire_date']:
+        expire_date = datetime.fromisoformat(code_info['expire_date'])
+        if datetime.now() > expire_date:
+            return False, 0
+    
+    # 检查使用次数
+    remaining = code_info.get('remaining_uses', -1)
+    if remaining == 0:
+        return False, 0
+    
+    return True, remaining
+
+def use_activation_code(code: str):
+    """使用激活码（扣除一次使用次数）"""
+    codes_data = load_activation_codes()
+    
+    if code in codes_data:
+        remaining = codes_data[code].get('remaining_uses', -1)
+        if remaining > 0:
+            codes_data[code]['remaining_uses'] = remaining - 1
+            codes_data[code]['last_used'] = datetime.now().isoformat()
+            save_activation_codes(codes_data)
+
 # 合同生成接口
 @app.post("/generate_contract/")
-async def generate_contract(text: str = Form(...)):
+async def generate_contract(
+    text: str = Form(...),
+    activation_code: str = Form(...)
+):
+    # 验证激活码
+    is_valid, remaining = verify_activation_code(activation_code)
+    if not is_valid:
+        raise HTTPException(status_code=401, detail="激活码无效或已过期")
+    
+    # 使用激活码（扣除次数）
+    use_activation_code(activation_code)
+    
     contract_content = await generate_contract_by_ai(text)
     latex_code = render_latex(contract_content)
     tmp_dir = "tmp_files"
