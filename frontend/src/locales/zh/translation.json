@@ -14,7 +14,7 @@
   "faq": "常见问题",
   "login": "登录/注册",
   "footer1": "文本转合同版 ©2025 | AI合同排版与PDF生成平台",
-  "footer2": "由MakerHung提供技术支持 | 联系方式：hrzblog@gmail.com",
+  "footer2": "由MakerHung提供技术支持",
   "footer3": "项目开源地址：https://github.com/HuangRunzhe/Text2Contract",
   "faq1q": "1. 生成的合同是否合规？",
   "faq1a": "AI会根据输入内容生成规范、正式的合同文本，但请务必自行审核后再使用。",
